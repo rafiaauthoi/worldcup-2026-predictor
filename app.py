@@ -165,13 +165,37 @@ with tab2:
 
 with tab3:
     st.header("Tournament Simulator")
-    st.markdown("Simulate the entire FIFA World Cup 2026 bracket.")
+    st.markdown("Simulate the entire FIFA World Cup 2026 bracket and see who comes out on top.")
 
-    if st.button("Run Simulation"):
-        with st.spinner("Simulating 10,000 tournaments..."):
-            sim_probs = run_simulation()
+    col1, col2 = st.columns([1, 2])
 
-        st.subheader("Championship Probabilities")
-        df_sim = pd.DataFrame(list(sim_probs.items()), columns=['Team', 'Probability'])
-        df_sim['Probability'] = df_sim['Probability'].apply(lambda x: f"{x:.1%}")
+    with col1:
+        st.subheader("Settings")
+        n_sims = st.slider("Number of Simulations", min_value=1000, max_value=20000, value=10000, step=1000)
+        run_btn = st.button("Run Simulation", type="primary")
+
+    if run_btn:
+        with st.spinner(f"Simulating {n_sims:,} tournaments..."):
+            sim_probs = run_simulation(n_sims)
+
+        st.subheader("Predicted Champion Probabilities")
+
+        top10 = dict(list(sim_probs.items())[:10])
+        fig, ax = plt.subplots(figsize=(10, 5))
+        bars = ax.barh(list(top10.keys())[::-1], [v*100 for v in list(top10.values())[::-1]],
+                       color='gold', edgecolor='black')
+        ax.set_xlabel('Probability (%)')
+        ax.set_title(f'Top 10 | Championship Probability ({n_sims:,} Simulations)')
+        for bar, val in zip(bars, list(top10.values())[::-1]):
+            ax.text(bar.get_width() + 0.2, bar.get_y() + bar.get_height()/2,
+                    f'{val:.1%}', va='center', fontsize=9)
+        plt.tight_layout()
+        st.pyplot(fig)
+
+        st.subheader("Full Results")
+        df_sim = pd.DataFrame(list(sim_probs.items()), columns=['Team', 'Championship Probability'])
+        df_sim['Championship Probability'] = df_sim['Championship Probability'].apply(lambda x: f"{x:.1%}")
+        df_sim.insert(0, 'Rank', range(1, len(df_sim) + 1))
         st.dataframe(df_sim, use_container_width=True, hide_index=True)
+    else:
+        st.info("Set the number of simulations and click Run Simulation to get started.")
