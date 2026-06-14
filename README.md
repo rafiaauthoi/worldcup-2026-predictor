@@ -42,6 +42,7 @@ The Tournament Simulator runs a configurable number of Monte Carlo simulations (
 ---
 
 ## Project structure
+```
 worldcup-2026-predictor/
 ├── data/
 │   ├── raw/               # Downloaded datasets (not committed)
@@ -57,6 +58,7 @@ worldcup-2026-predictor/
 ├── app.py                 # Streamlit dashboard
 ├── requirements.txt
 └── README.md
+```
 ---
 
 ## Setup
