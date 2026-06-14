@@ -21,9 +21,9 @@ A machine learning pipeline that predicts FIFA World Cup 2026 match outcomes and
 - FIFA World Cup 2026 fixture schedule and team data
 
 ### Feature Engineering
-- **Elo ratings** — Built from scratch by processing every match chronologically since 1872
-- **Recent form** — Win rate over each team's last 10 matches
-- **Tournament context** — Whether the match is at a World Cup, on neutral ground, etc.
+- **Elo ratings** - Built from scratch by processing every match chronologically since 1872
+- **Recent form** - Win rate over each team's last 10 matches
+- **Tournament context** - Whether the match is at a World Cup, on neutral ground, etc.
 
 ### Modeling
 Three models were trained and compared on post-1990 match data:
