@@ -53,7 +53,7 @@ st.title("xPredict | FIFA World Cup 2026")
 st.markdown("Machine learning predictions powered by 49,000+ historical matches and 10,000 Monte Carlo simulations.")
 
 # Tabs
-tab1, tab2, tab3 = st.tabs(["Championship Odds", "Match Predictor", "Tournament Simulator"])
+tab1, tab2, tab3, tab4 = st.tabs(["Championship Odds", "Match Predictor", "Tournament Simulator", "Player Scout"])
 
 with tab1:
     st.header("Championship Odds")
@@ -199,3 +199,64 @@ with tab3:
         st.dataframe(df_sim, use_container_width=True, hide_index=True)
     else:
         st.info("Set the number of simulations and click Run Simulation to get started.")
+        
+with tab4:
+    st.header("Player Scout")
+    st.markdown("Explore player stats from the 2022 FIFA World Cup — the most recent complete tournament dataset available.")
+
+    # Load player stats
+    @st.cache_data
+    def load_player_stats():
+        return pd.read_csv('data/processed/player_stats_wc2022.csv')
+
+    player_stats = load_player_stats()
+
+    # Team selector
+    teams = sorted(player_stats['team'].unique().tolist())
+    selected_team = st.selectbox("Select a Team", teams, index=teams.index('Argentina'))
+
+    team_data = player_stats[player_stats['team'] == selected_team].copy()
+
+    # Team overview metrics
+    st.subheader(f"{selected_team} | WC 2022 Overview")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Goals", int(team_data['goals'].sum()))
+    col2.metric("Total Shots", int(team_data['shots'].sum()))
+    col3.metric("Total xG", f"{team_data['xg'].sum():.2f}")
+    col4.metric("Yellow Cards", int(team_data['yellow_cards'].sum()))
+
+    # Top scorers chart
+    st.subheader("Top Scorers")
+    top_scorers = team_data[team_data['goals'] > 0].sort_values('goals', ascending=False).head(7)
+
+    if len(top_scorers) > 0:
+        fig, ax = plt.subplots(figsize=(10, 4))
+        x = range(len(top_scorers))
+        bars1 = ax.bar([i - 0.2 for i in x], top_scorers['goals'], 0.4, label='Goals', color='gold', edgecolor='black')
+        bars2 = ax.bar([i + 0.2 for i in x], top_scorers['xg'], 0.4, label='xG', color='steelblue', edgecolor='black')
+        ax.set_xticks(list(x))
+        ax.set_xticklabels(top_scorers['player'], rotation=30, ha='right', fontsize=9)
+        ax.set_ylabel('Goals / xG')
+        ax.set_title(f'{selected_team} | Goals vs Expected Goals (xG)')
+        ax.legend()
+        plt.tight_layout()
+        st.pyplot(fig)
+    else:
+        st.info("No goals scored by this team in WC 2022.")
+
+    # Key players table
+    st.subheader("Full Squad Stats")
+    display_cols = ['player', 'goals', 'shots', 'xg', 'assists', 'passes', 'yellow_cards']
+    squad_display = team_data[display_cols].sort_values('goals', ascending=False).reset_index(drop=True)
+    squad_display.insert(0, 'Rank', range(1, len(squad_display) + 1))
+    squad_display['xg'] = squad_display['xg'].round(2)
+    st.dataframe(squad_display, use_container_width=True, hide_index=True)
+
+    # Card risk section
+    st.subheader("Card Risk Players")
+    card_risk = team_data[team_data['yellow_cards'] > 0].sort_values('yellow_cards', ascending=False)
+    if len(card_risk) > 0:
+        st.dataframe(card_risk[['player', 'yellow_cards']].reset_index(drop=True), 
+                    use_container_width=True, hide_index=True)
+    else:
+        st.info("No yellow cards recorded for this team.")        
