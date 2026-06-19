@@ -33,8 +33,14 @@ def load_elo():
     with open('data/processed/elo_ratings.json', 'r') as f:
         return json.load(f)
 
+@st.cache_resource
+def load_form():
+    with open('data/processed/recent_form.json', 'r') as f:
+        return json.load(f)
+
 model = load_model()
 elo_ratings = load_elo()
+recent_form = load_form()
 
 # World Cup 2026 teams
 WC_TEAMS = sorted([
@@ -137,9 +143,9 @@ with tab2:
             'home_elo': elo1,
             'away_elo': elo2,
             'elo_diff': elo1 - elo2,
-            'home_form': 0.5,
-            'away_form': 0.5,
-            'form_diff': 0.0,
+            'home_form': recent_form.get(team1, 0.5),
+            'away_form': recent_form.get(team2, 0.5),
+            'form_diff': recent_form.get(team1, 0.5) - recent_form.get(team2, 0.5),
             'neutral': 1,
             'is_wc': 1
         }])
