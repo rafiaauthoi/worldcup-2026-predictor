@@ -188,8 +188,9 @@ with tab3:
         ax.set_title(f'Top 10 | Championship Probability ({n_sims:,} Simulations)')
         for bar, val in zip(bars, list(top10.values())[::-1]):
             ax.text(bar.get_width() + 0.2, bar.get_y() + bar.get_height()/2,
-                    f'{val:.1%}', va='center', fontsize=9)
+                    f'{val:.1%}', va='center', fontsize=7)
         plt.tight_layout()
+        plt.subplots_adjust(right=0.85)
         st.pyplot(fig)
 
         st.subheader("Full Results")
