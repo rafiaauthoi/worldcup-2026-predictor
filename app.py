@@ -71,14 +71,29 @@ with tab1:
         match_cache = {}
 
         def get_win_prob(team1, team2):
-            key = (team1, team2)
-            if key not in match_cache:
-                elo1 = elo_ratings.get(team1, 1000)
-                elo2 = elo_ratings.get(team2, 1000)
-                p1 = 1 / (1 + 10 ** ((elo2 - elo1) / 400))
-                match_cache[key] = p1
-                match_cache[(team2, team1)] = 1 - p1
-            return match_cache[key]
+         key = (team1, team2)
+        if key not in match_cache:
+           elo1 = elo_ratings.get(team1, 1000)
+           elo2 = elo_ratings.get(team2, 1000)
+           form1 = recent_form.get(team1, 0.5)
+           form2 = recent_form.get(team2, 0.5)
+           features = pd.DataFrame([{
+               'home_elo': elo1,
+               'away_elo': elo2,
+               'elo_diff': elo1 - elo2,
+               'home_form': form1,
+               'away_form': form2,
+               'form_diff': form1 - form2,
+               'neutral': 1,
+               'is_wc': 1
+           }])
+           probs = model.predict_proba(features)[0]
+           # probs: [away_win, draw, home_win]
+           # in knockout we ignore draw, renormalize to just win/loss
+           p1 = probs[2] / (probs[2] + probs[0])
+           match_cache[key] = p1
+           match_cache[(team2, team1)] = 1 - p1
+        return match_cache[key]
 
         def simulate_match(team1, team2):
             p1 = get_win_prob(team1, team2)
