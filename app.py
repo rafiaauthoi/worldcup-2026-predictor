@@ -107,7 +107,7 @@ with tab1:
     ax.set_title('FIFA World Cup 2026 | Championship Probability (10,000 Simulations)')
     ax.set_xlabel('Team')
     ax.set_ylabel('Probability (%)')
-    plt.xticks(rotation=90, ha='right', fontsize=9)
+    plt.xticks(rotation=45, ha='right', fontsize=8)
     plt.tight_layout()
     st.pyplot(fig)
 
