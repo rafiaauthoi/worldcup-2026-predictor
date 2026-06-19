@@ -3,6 +3,7 @@
 A machine learning pipeline that predicts FIFA World Cup 2026 match outcomes and simulates the entire tournament bracket using 150+ years of international football data.
 
 **Live app:** https://xpredict-wc2026.streamlit.app
+![xPredict Screenshot](assets/app_screenshot.png)
 
 ---
 
